@@ -11,6 +11,16 @@ use App\Http\Controllers\AdminSettingsController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\AuthController;
 
+// use App\Http\Controllers\RolesController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\SystemConfigController;
+
+Route::get('roles', [RolesController::class, 'index'])->name('roles.index');
+Route::post('roles', [RolesController::class, 'store'])->name('roles.store');
+Route::post('roles/assign', [RolesController::class, 'assign'])->name('roles.assign');
+
+
+
 // General routes
 Route::resource('client', ClientController::class);
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -18,10 +28,10 @@ Route::resource('report', ReportingController::class);
 Route::resource('roles', RolesController::class);
 Route::resource('case', CaseManagementController::class);
 Route::resource('admin', AdminSettingsController::class);
-Route::post('/admin/storeUser', [AdminSettingsController::class, 'storeUser'])->name('admin.storeUser');
-Route::put('/admin/updateUser/{id}', [AdminSettingsController::class, 'updateUser'])->name('admin.updateUser');
-Route::delete('/admin/deleteUser/{id}', [AdminSettingsController::class, 'deleteUser'])->name('admin.deleteUser');
-
+Route::get('/admin', [AdminSettingsController::class, 'index'])->name('admin.index');
+Route::post('/roles', [AdminSettingsController::class, 'storeRole'])->name('roles.store');
+Route::post('/reset-password', [AdminSettingsController::class, 'resetPassword'])->name('users.resetPassword');
+Route::post('/system-config', [AdminSettingsController::class, 'updateSystemConfig'])->name('system.config.update');
 // Authentication routes
 Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [AuthController::class, 'register']);

@@ -3,92 +3,91 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User; // Assuming you have a User model
 
 class AdminSettingsController extends Controller
 {
     /**
      * Display the admin settings page.
      *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @return \Illuminate\Contracts\View\View
      */
     public function index()
     {
-        // Fetch system configuration from database or config files if needed
+        // Fetch admin settings from the database or configuration files.
+        // Here, we'll use static data for demonstration.
         $systemConfig = [
             'name' => 'KCSS CMS',
             'adminEmail' => 'admin@kcss.com',
             'theme' => 'dark'
         ];
 
-        // Fetch all users from the database with selected fields
-        $users = User::select('id', 'name', 'email', 'phone', 'roles')->get();
-
-        return view('admin', compact('systemConfig', 'users'));
+        return view('admin', compact('systemConfig'));
     }
 
     /**
-     * Store a newly created user in storage.
+     * Handle the form submission for user role management.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function storeUser(Request $request)
+    public function storeRole(Request $request)
     {
+        // Validate the input
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20',
-            'roles' => 'required|in:admin,normal', // Assuming roles is stored as a string in the database
-            'password' => 'required|string|min:8|confirmed',
+            'roleName' => 'required|string|max:255',
+            'permissions' => 'required|array',
         ]);
 
-        User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'phone' => $validatedData['phone'],
-            'roles' => $validatedData['roles'], // Assuming roles is stored as a string in the database
-            'password' => bcrypt($validatedData['password']),
-            'is_active' => true, // Default to active, you can adjust this based on your needs
-        ]);
+        // Here, you would typically save the role and permissions to the database
+        // For example:
+        // $role = Role::create(['name' => $validatedData['roleName']]);
+        // $role->givePermissionTo($validatedData['permissions']);
 
-        return response()->json(['message' => 'User added successfully'], 201);
+        // Redirect back with a success message
+        return redirect()->route('admin.index')->with('success', 'Role saved successfully!');
     }
 
     /**
-     * Update the specified user in storage.
+     * Handle password reset for a user.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateUser(Request $request, $id)
+    public function resetPassword(Request $request)
     {
-        $user = User::findOrFail($id);
-
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'nullable|string|max:20',
-            'roles' => 'required|in:admin,normal',
+        $request->validate([
+            'username' => 'required|string|exists:users,username',
+            'newPassword' => 'required|string|min:8|confirmed',
         ]);
 
-        $user->update($validatedData);
+        // Here, you would typically update the user's password in the database
+        // For example:
+        // $user = User::where('username', $request->username)->first();
+        // $user->password = Hash::make($request->newPassword);
+        // $user->save();
 
-        return response()->json(['message' => 'User updated successfully'], 200);
+        return redirect()->route('admin.index')->with('success', 'Password reset successfully!');
     }
 
     /**
-     * Remove the specified user from storage.
+     * Handle system configuration updates.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteUser($id)
+    public function updateSystemConfig(Request $request)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $request->validate([
+            'systemName' => 'required|string|max:255',
+            'adminEmail' => 'required|email',
+            'theme' => 'required|in:dark,light,blue',
+        ]);
 
-        return response()->json(['message' => 'User deleted successfully'], 200);
+        // Here, you would typically update the system configuration in the database or config file
+        // For example:
+        // Config::set('system.name', $request->systemName);
+        // Config::save(); // If using a package for dynamic config updates
+
+        return redirect()->route('admin.index')->with('success', 'System configuration updated!');
     }
 }

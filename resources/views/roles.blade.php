@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,7 +51,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -87,26 +85,28 @@
                 <h1>User Roles & Permissions</h1>
 
                 <div class="row">
-                    <!-- Create New Role -->
+                    <!-- Create New Role/Permission -->
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-header">
-                                <h5>Create New Role</h5>
+                                <h5>Create New Role/Permission</h5>
                             </div>
                             <div class="card-body">
-                                <form>
-                                    <label for="roleName">Role Name</label>
-                                    <input type="text" class="form-control" id="roleName" placeholder="Enter role name">
-                                    
-                                    <label for="permissions">Permissions</label>
-                                    <select multiple class="form-control" id="permissions">
-                                        <option>Manage Clients</option>
-                                        <option>Manage Cases</option>
-                                        <option>View Reports</option>
-                                        <option>Admin Settings Access</option>
+                                <form action="{{ route('roles.store') }}" method="POST">
+                                    @csrf
+                                    <label for="type">Type</label>
+                                    <select class="form-control" id="type" name="type" required>
+                                        <option value="role">Role</option>
+                                        <option value="permission">Permission</option>
                                     </select>
                                     
-                                    <button type="submit" class="btn btn-primary mt-3">Create Role</button>
+                                    <label for="name">Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter name" required>
+
+                                    <label for="description">Description (optional)</label>
+                                    <textarea class="form-control" id="description" name="description" placeholder="Enter description"></textarea>
+
+                                    <button type="submit" class="btn btn-primary mt-3">Create</button>
                                 </form>
                             </div>
                         </div>
@@ -119,14 +119,19 @@
                                 <h5>Assign Role to User</h5>
                             </div>
                             <div class="card-body">
-                                <form>
-                                    <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username" placeholder="Enter username">
+                                <form action="{{ route('roles.assign') }}" method="POST">
+                                    @csrf
+                                    <label for="username">User</label>
+                                    <select class="form-control" id="username" name="username" required>
+                                        @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                        @endforeach
+                                    </select>
 
-                                    <label for="assignRole">Role</label>
-                                    <select class="form-control" id="assignRole">
+                                    <label for="assignRolePermission">Role</label>
+                                    <select class="form-control" id="assignRolePermission" name="role_permission" required>
                                         @foreach($roles as $role)
-                                            <option>{{ $role['name'] }}</option>
+                                            <option value="{{ $role->id }}">{{ $role->name }}</option>
                                         @endforeach
                                     </select>
 
@@ -149,20 +154,17 @@
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>Role</th>
-                                            <th>Permissions</th>
-                                            <th>Actions</th>
+                                            <th>Name</th>
+                                            <th>Type</th>
+                                            <th>Description</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($roles as $role)
+                                        @foreach($rolesAndPermissions as $item)
                                         <tr>
-                                            <td>{{ $role['name'] }}</td>
-                                            <td>{{ implode(', ', $role['permissions']) }}</td>
-                                            <td>
-                                                <button class="btn btn-warning btn-sm">Edit</button>
-                                                <button class="btn btn-danger btn-sm">Delete</button>
-                                            </td>
+                                            <td>{{ $item->name }}</td>
+                                            <td>{{ $item->type }}</td>
+                                            <td>{{ $item->description ?? 'No description' }}</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -179,5 +181,4 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

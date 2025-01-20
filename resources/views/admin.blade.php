@@ -17,7 +17,7 @@
         }
 
         .sidebar {
-            min-height: 100vh; /* Full viewport height */
+            min-height: 100vh;
             background-color: #343a40;
             padding-top: 20px;
         }
@@ -84,204 +84,96 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
                 <h1>Admin Settings</h1>
 
-                <!-- User Management Section -->
-                <div class="row mb-4">
+                @if(session('success'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                <div class="row">
+                    <!-- User Role Management -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>User Roles & Permissions</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ route('roles.store') }}" method="post">
+                                    @csrf
+                                    <label for="roleName">Role Name</label>
+                                    <input type="text" class="form-control" id="roleName" name="roleName" placeholder="Enter role name">
+                                    
+                                    <label for="permissions">Permissions</label>
+                                    <select multiple class="form-control" id="permissions" name="permissions[]">
+                                        <option>Manage Clients</option>
+                                        <option>Manage Cases</option>
+                                        <option>View Reports</option>
+                                        <option>Admin Settings Access</option>
+                                    </select>
+                                    
+                                    <button type="submit" class="btn btn-primary mt-3">Save Role</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password Reset -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Reset User Password</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ route('users.resetPassword') }}" method="post">
+                                    @csrf
+                                    <label for="username">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
+
+                                    <label for="newPassword">New Password</label>
+                                    <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter new password">
+
+                                    <button type="submit" class="btn btn-danger mt-3">Reset Password</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Configuration -->
+                <div class="row">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h5>User Management</h5>
-                                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+                                <h5>System Configuration</h5>
                             </div>
                             <div class="card-body">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Phone</th>
-                                            <th>Role</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($users as $user)
-                                        <tr>
-                                            <td>{{ $user->name }}</td>
-                                            <td>{{ $user->email }}</td>
-                                            <td>{{ $user->phone ?? 'N/A' }}</td>
-                                            <td>{{ $user->roles }}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">Edit</button>
-                                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteUser({{ $user->id }})">Delete</button>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                <form action="{{ route('system.config.update') }}" method="post">
+                                    @csrf
+                                    <label for="systemName">System Name</label>
+                                    <input type="text" class="form-control" id="systemName" name="systemName" value="{{ $systemConfig['name'] }}">
+
+                                    <label for="adminEmail">Admin Email</label>
+                                    <input type="email" class="form-control" id="adminEmail" name="adminEmail" value="{{ $systemConfig['adminEmail'] }}">
+
+                                    <label for="theme">Theme Color</label>
+                                    <select class="form-control" id="theme" name="theme">
+                                        <option value="dark" {{ $systemConfig['theme'] === 'dark' ? 'selected' : '' }}>Dark</option>
+                                        <option value="light" {{ $systemConfig['theme'] === 'light' ? 'selected' : '' }}>Light</option>
+                                        <option value="blue" {{ $systemConfig['theme'] === 'blue' ? 'selected' : '' }}>Blue</option>
+                                    </select>
+
+                                    <button type="submit" class="btn btn-success mt-3">Save Configuration</button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Rest of your existing content for User Role Management, Password Reset, and System Configuration -->
-
-                <!-- Add User Modal -->
-                <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form id="addUserForm" action="{{ route('admin.storeUser') }}" method="POST">
-                                @csrf
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="name" class="form-label">Name</label>
-                                        <input type="text" class="form-control" id="name" name="name" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="phone" class="form-label">Phone</label>
-                                        <input type="text" class="form-control" id="phone" name="phone">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="roles" class="form-label">Role</label>
-                                        <select class="form-control" id="roles" name="roles">
-                                            <option value="admin">Admin</option>
-                                            <option value="normal">Normal</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="password" name="password" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="password_confirmation" class="form-label">Confirm Password</label>
-                                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Save User</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Edit User Modal -->
-                @foreach($users as $user)
-                <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1" aria-labelledby="editUserModalLabel{{ $user->id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editUserModalLabel{{ $user->id }}">Edit User</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form id="editUserForm{{ $user->id }}" action="{{ route('admin.updateUser', ['id' => $user->id]) }}" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="editName{{ $user->id }}" class="form-label">Name</label>
-                                        <input type="text" class="form-control" id="editName{{ $user->id }}" name="name" value="{{ $user->name }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editEmail{{ $user->id }}" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="editEmail{{ $user->id }}" name="email" value="{{ $user->email }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editPhone{{ $user->id }}" class="form-label">Phone</label>
-                                        <input type="text" class="form-control" id="editPhone{{ $user->id }}" name="phone" value="{{ $user->phone }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editRoles{{ $user->id }}" class="form-label">Role</label>
-                                        <select class="form-control" id="editRoles{{ $user->id }}" name="roles">
-                                            <option value="admin" {{ $user->roles == 'admin' ? 'selected' : '' }}>Admin</option>
-                                            <option value="normal" {{ $user->roles == 'normal' ? 'selected' : '' }}>Normal</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Update User</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-
             </main>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function deleteUser(id) {
-            if (confirm("Are you sure you want to delete this user?")) {
-                fetch('/admin/deleteUser/' + id, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    location.reload();
-                });
-            }
-        }
-
-        // Event listener for add user form
-        document.getElementById('addUserForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let form = this;
-            let formData = new FormData(form);
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            }).then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                location.reload();
-            });
-        });
-
-        // Event listeners for edit user forms
-        @foreach($users as $user)
-        document.getElementById('editUserForm{{ $user->id }}').addEventListener('submit', function(e) {
-    e.preventDefault();
-    console.log('Form submission attempted for user ' + {{ $user->id }});  // Debugging line
-    let form = this;
-    let formData = new FormData(form);
-    fetch(form.action, {
-        method: 'PUT',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    }).then(response => response.json())
-    .then(data => {
-        console.log('Server response:', data);  // Log server response
-        alert(data.message);
-        document.getElementById('editUserModal{{ $user->id }}').querySelector('.btn-close').click();
-        location.reload();
-    }).catch(error => {
-        console.error('Error:', error);  // Log any errors
-    });
-});
-        @endforeach
-    </script>
 </body>
 
 </html>
