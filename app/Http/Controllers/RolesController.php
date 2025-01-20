@@ -11,9 +11,8 @@ class RolesController extends Controller
     public function index()
     {
         $rolesAndPermissions = RolePermission::all();
-        $roles = $rolesAndPermissions->where('type', 'role');
         $users = User::all();
-        return view('roles', compact('rolesAndPermissions', 'users', 'roles'));
+        return view('roles', compact('rolesAndPermissions', 'users'));
     }
 
     public function store(Request $request)
@@ -37,14 +36,12 @@ class RolesController extends Controller
         ]);
 
         $user = User::find($request->input('username'));
-        $rolePermission = RolePermission::where('id', $request->input('role_permission'))
-                                       ->where('type', 'role')
-                                       ->first();
+        $rolePermission = RolePermission::find($request->input('role_permission'));
 
         if ($user && $rolePermission) {
             $user->rolePermissions()->attach($rolePermission);
-            return redirect()->back()->with('success', 'Role assigned successfully!');
+            return redirect()->back()->with('success', 'Role or Permission assigned successfully!');
         }
-        return redirect()->back()->with('error', 'Failed to assign role. Make sure you are assigning a role.');
+        return redirect()->back()->with('error', 'Failed to assign role or permission.');
     }
 }

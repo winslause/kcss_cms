@@ -128,14 +128,14 @@
                                         @endforeach
                                     </select>
 
-                                    <label for="assignRolePermission">Role</label>
+                                    <label for="assignRolePermission">Role/Permission</label>
                                     <select class="form-control" id="assignRolePermission" name="role_permission" required>
-                                        @foreach($roles as $role)
-                                            <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                        @foreach($rolesAndPermissions as $item)
+                                            <option value="{{ $item->id }}">{{ $item->name }} - {{ $item->type }}</option>
                                         @endforeach
                                     </select>
 
-                                    <button type="submit" class="btn btn-success mt-3">Assign Role</button>
+                                    <button type="submit" class="btn btn-success mt-3">Assign Role/Permission</button>
                                 </form>
                             </div>
                         </div>

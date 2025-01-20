@@ -33,8 +33,8 @@ Route::post('/roles', [AdminSettingsController::class, 'storeRole'])->name('role
 Route::post('/reset-password', [AdminSettingsController::class, 'resetPassword'])->name('users.resetPassword');
 Route::post('/system-config', [AdminSettingsController::class, 'updateSystemConfig'])->name('system.config.update');
 // Authentication routes
-Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('register', [AuthController::class, 'register']);
+Route::get('/', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/', [AuthController::class, 'register']);
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
