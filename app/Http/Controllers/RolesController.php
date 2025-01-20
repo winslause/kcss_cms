@@ -16,17 +16,17 @@ class RolesController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:role,permission',
-            'description' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'type' => 'required|in:role,permission',
+        'description' => 'nullable|string',
+    ]);
 
-        RolePermission::create($request->only(['name', 'type', 'description']));
+    RolePermission::create($request->only(['name', 'type', 'description']));
 
-        return redirect()->back()->with('success', 'Role or Permission created successfully!');
-    }
+    return redirect()->back()->with('success', 'Role or Permission created successfully!');
+}
 
     public function assign(Request $request)
     {

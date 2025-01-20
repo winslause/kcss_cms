@@ -16,8 +16,13 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SystemConfigController;
 
 Route::get('roles', [RolesController::class, 'index'])->name('roles.index');
-Route::post('roles', [RolesController::class, 'store'])->name('roles.store');
+// Route::post('roles', [RolesController::class, 'store'])->name('roles.store');
+Route::post('/roles', [RolesController::class, 'store'])->name('roles.store');
 Route::post('roles/assign', [RolesController::class, 'assign'])->name('roles.assign');
+
+// use App\Http\Controllers\RolesController;
+
+
 
 
 
